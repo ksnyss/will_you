@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Valentine Quest 2026</title>
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --bg: #0F0A1E;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* LABIRINTO */
+        #game-section { text-align: center; }
+        #maze-container {
+            background: var(--glass);
+            padding: 15px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        canvas { display: block; border-radius: 12px; background: #16102b; }
+
+        /* TELA DE PEDIDO */
+        #valentine-screen {
+            display: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .buttons-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 50px;
+            height: 100px; /* Espaço para o botão não quebrar o layout */
+        }
+
+        button {
+            padding: 18px 45px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff4d6d, #ff85a1);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.5);
+            transition: transform 0.2s;
+        }
+
+        #yesBtn:hover { transform: scale(1.1); }
+
+        #noBtn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #F6AD55;
+            border: 2px solid #F6AD55;
+            position: relative; /* Começa relativo para alinhar ao Sim */
+            will-change: transform;
+        }
+
+        /* CELEBRAÇÃO FINAL */
+        #celebration {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 10, 30, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .heart-fly {
+            position: absolute;
+            pointer-events: none;
+            animation: fly 3s linear forwards;
+        }
+
+        @keyframes fly {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-section">
+        <h1 style="margin-bottom: 20px;">Leve o ❤️ até a meta...</h1>
+        <div id="maze-container">
+            <canvas id="mazeCanvas" width="300" height="300"></canvas>
+        </div>
+    </div>
+
+    <div id="valentine-screen">
+        <h1 style="font-size: 3rem; margin-bottom: 20px;">Will you be my Valentine? 💌</h1>
+        <div class="buttons-wrapper">
+            <button id="yesBtn">SIM!</button>
+            <button id="noBtn">Não</button>
+        </div>
+    </div>
+
+    <div id="celebration">
+        <h1 style="font-size: 4rem;">SIM! ❤️ ✨</h1>
+        <p style="font-size: 1.5rem; opacity: 0.8;">Eu sabia que você conseguiria!</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mazeCanvas');
+        const ctx = canvas.getContext('2d');
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+
+        // 1. LABIRINTO SIMPLIFICADO (Para evitar bugs de colisão)
+        const maze = [
+            [1,1,1,1,1,1,1],
+            [0,0,0,0,0,0,1],
+            [1,1,1,1,1,0,1],
+            [1,0,0,0,0,0,1],
+            [1,0,1,1,1,1,1],
+            [1,0,0,0,0,2,1],
+            [1,1,1,1,1,1,1]
+        ];
+        const tileSize = canvas.width / maze.length;
+        let player = { x: 0, y: 1 };
+
+        function draw() {
+            ctx.clearRect(0,0,300,300);
+            maze.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    if(cell === 1) { ctx.fillStyle = '#6B46C1'; ctx.fillRect(x*tileSize, y*tileSize, tileSize-1, tileSize-1); }
+                    if(cell === 2) { ctx.fillText("❤️", x*tileSize+10, y*tileSize+30); ctx.font = "20px Arial"; }
+                });
+            });
+            ctx.fillStyle = "#ff4d6d";
+            ctx.beginPath(); ctx.arc(player.x*tileSize+tileSize/2, player.y*tileSize+tileSize/2, 10, 0, Math.PI*2); ctx.fill();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            let dx = 0, dy = 0;
+            if(e.key === "ArrowUp") dy = -1; else if(e.key === "ArrowDown") dy = 1;
+            else if(e.key === "ArrowLeft") dx = -1; else if(e.key === "ArrowRight") dx = 1;
+            
+            if(maze[player.y + dy]?.[player.x + dx] !== 1) {
+                player.x += dx; player.y += dy;
+                if(maze[player.y][player.x] === 2) {
+                    document.getElementById('game-section').style.display = 'none';
+                    document.getElementById('valentine-screen').style.display = 'block';
+                }
+                draw();
+            }
+        });
+        draw();
+
+        // 2. POLARIDADE MAGNÉTICA (O segredo está no offset)
+        let offsetX = 0;
+        let offsetY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            if(document.getElementById('valentine-screen').style.display !== 'block') return;
+
+            const rect = noBtn.getBoundingClientRect();
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            const btnX = rect.left + rect.width / 2;
+            const btnY = rect.top + rect.height / 2;
+
+            const dist = Math.hypot(mouseX - btnX, mouseY - btnY);
+            const radius = 120; // Campo de força
+
+            if (dist < radius) {
+                const angle = Math.atan2(btnY - mouseY, btnX - mouseX);
+                const force = (radius - dist) / radius;
+                
+                // Empurra o botão acumulando o offset
+                offsetX += Math.cos(angle) * force * 20;
+                offsetY += Math.sin(angle) * force * 20;
+
+                noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }
+        });
+
+        // 3. SUCESSO INTERATIVO
+        yesBtn.addEventListener('click', () => {
+            document.getElementById('valentine-screen').style.display = 'none';
+            const celeb = document.getElementById('celebration');
+            celeb.style.display = 'flex';
+            
+            // Log do sistema
+            console.log("Salvo em P:\\IT\\Controlador msg_id");
+
+            // Partículas
+            for(let i=0; i<50; i++) {
+                const h = document.createElement('div');
+                h.className = 'heart-fly';
+                h.textContent = ['❤️','💖','✨','💕'][Math.floor(Math.random()*4)];
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.top = '100vh';
+                h.style.fontSize = Math.random() * 20 + 20 + 'px';
+                h.style.animationDelay = Math.random() * 2 + 's';
+                celeb.appendChild(h);
+            }
+        });
+    </script>
+</body>
+</html>
