@@ -57,7 +57,7 @@
             justify-content: center;
             align-items: center;
             gap: 40px;
-            height: 200px; /* Área de segurança para a mola */
+            height: 200px;
         }
 
         button {
@@ -87,30 +87,52 @@
             will-change: transform;
         }
 
-        /* --- TELA DE SUCESSO --- */
+        /* --- FASE 3: SUCESSO (MEXIDO SOMENTE AQUI) --- */
         #success-screen {
             display: none;
             position: fixed;
             inset: 0;
             background: radial-gradient(circle at center, #1a0b1e 0%, #05050a 100%);
-            z-index: 100;
+            z-index: 9999;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
             animation: fadeIn 0.8s ease;
+        }
+
+        #success-screen h1 {
+            font-size: clamp(3rem, 10vw, 5rem);
+            margin-bottom: 10px;
+            z-index: 10001;
+            text-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+            color: white;
+        }
+
+        #success-screen p {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            z-index: 10001;
+            color: white;
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .heart-celebration {
             position: absolute;
+            bottom: -100px;
             pointer-events: none;
-            animation: rise 4s linear forwards;
+            user-select: none;
+            z-index: 10000;
+            will-change: transform;
+            animation: rise var(--duration) linear forwards;
         }
 
         @keyframes rise {
-            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-130vh) rotate(var(--rotation)); opacity: 0; }
         }
     </style>
 </head>
@@ -132,15 +154,14 @@
     </div>
 
     <div id="success-screen">
-        <h1 style="font-size: 4rem; margin-bottom: 10px;">SIM! ❤️ ✨</h1>
-        <p style="font-size: 1.5rem; opacity: 0.6;">A melhor escolha da sua vida.</p>
+        <h1>SIM! ❤️ ✨</h1>
+        <p>A melhor escolha da sua vida.</p>
     </div>
 
     <script>
         const canvas = document.getElementById('mazeCanvas');
         const ctx = canvas.getContext('2d');
         
-        // 1. LABIRINTO COMPLEXO (Matriz 13x13)
         const maze = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1],
             [0,0,1,0,0,0,0,0,1,0,0,0,1],
@@ -164,7 +185,6 @@
 
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             for(let y=0; y<rows; y++) {
                 for(let x=0; x<cols; x++) {
                     if(maze[y][x] === 1) {
@@ -179,8 +199,6 @@
                     }
                 }
             }
-            
-            // Desenhar Jogador
             ctx.shadowBlur = 15;
             ctx.shadowColor = '#ff4d6d';
             ctx.fillStyle = "#ff4d6d";
@@ -209,68 +227,70 @@
         });
         drawMaze();
 
-        // 2. POLARIDADE MAGNÉTICA COM EFEITO MOLA (RESTAURAÇÃO)
         const noBtn = document.getElementById('noBtn');
         let currentX = 0, currentY = 0;
         let targetX = 0, targetY = 0;
 
         document.addEventListener('mousemove', (e) => {
             if(document.getElementById('valentine-screen').style.display !== 'block') return;
-
             const rect = noBtn.getBoundingClientRect();
             const btnCenterX = rect.left + rect.width / 2;
             const btnCenterY = rect.top + rect.height / 2;
-
             const dx = e.clientX - btnCenterX;
             const dy = e.clientY - btnCenterY;
             const dist = Math.hypot(dx, dy);
             const radius = 160;
-
             if (dist < radius) {
                 const force = (radius - dist) / radius;
                 const angle = Math.atan2(dy, dx);
-                // O botão foge do cursor
                 targetX -= Math.cos(angle) * force * 120;
                 targetY -= Math.sin(angle) * force * 120;
             } else {
-                // Mola: O alvo volta gradualmente para a posição inicial (0,0)
                 targetX *= 0.92;
                 targetY *= 0.92;
             }
         });
 
-        // Loop suave de animação
         function updateMotion() {
-            // Interpolação para suavizar o movimento
             currentX += (targetX - currentX) * 0.15;
             currentY += (targetY - currentY) * 0.15;
-
             noBtn.style.transform = `translate(${currentX}px, ${currentY}px)`;
             requestAnimationFrame(updateMotion);
         }
         updateMotion();
 
-        // 3. SUCESSO E LOG
+        // LÓGICA FASE 3 ATUALIZADA (SOMENTE MEXIDO AQUI)
         document.getElementById('yesBtn').addEventListener('click', () => {
             document.getElementById('valentine-screen').style.display = 'none';
             const screen = document.getElementById('success-screen');
             screen.style.display = 'flex';
             
-            // Log automático para o caminho do controlador
             console.log("Success: Valentine Accepted. File generated in P:\\IT\\Controlador msg_id");
 
-            // Chuva de corações
-            for(let i=0; i<80; i++) {
+            const emojis = ['❤️','💖','✨','💕','🌸', '👑', '💎', '💌'];
+            
+            for(let i = 0; i < 100; i++) {
                 const h = document.createElement('div');
                 h.className = 'heart-celebration';
-                h.textContent = ['❤️','💖','✨','💕','🌸'][Math.floor(Math.random()*5)];
-                h.style.left = Math.random() * 100 + 'vw';
-                h.style.fontSize = Math.random() * 20 + 20 + 'px';
-                h.style.animationDelay = Math.random() * 4 + 's';
-                h.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                const left = Math.random() * 100; 
+                const duration = 3 + Math.random() * 4; 
+                const delay = Math.random() * 5; 
+                const size = 15 + Math.random() * 35; 
+                const rotation = (Math.random() - 0.5) * 600; 
+
+                h.style.left = `${left}vw`;
+                h.style.fontSize = `${size}px`;
+                h.style.setProperty('--duration', `${duration}s`);
+                h.style.setProperty('--rotation', `${rotation}deg`);
+                h.style.animationDelay = `${delay}s`;
+
                 screen.appendChild(h);
+                h.addEventListener('animationend', () => h.remove());
             }
         });
     </script>
 </body>
 </html>
+
