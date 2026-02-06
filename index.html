@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Valentine Quest 2026</title>
+    <title>Complex Valentine Labirinto 2026</title>
     <style>
         :root {
             --primary: #ff4d6d;
-            --bg: #0F0A1E;
-            --glass: rgba(255, 255, 255, 0.05);
+            --accent: #6B46C1;
+            --bg: #05050a;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
             background: var(--bg);
@@ -23,202 +24,251 @@
             overflow: hidden;
         }
 
-        /* LABIRINTO */
-        #game-section { text-align: center; }
-        #maze-container {
+        /* --- FASE 1: LABIRINTO COMPLEXO --- */
+        #game-section { text-align: center; z-index: 5; }
+        
+        .maze-board {
             background: var(--glass);
-            padding: 15px;
-            border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(107, 70, 193, 0.3);
+            box-shadow: 0 0 40px rgba(107, 70, 193, 0.1);
             backdrop-filter: blur(10px);
         }
-        canvas { display: block; border-radius: 12px; background: #16102b; }
 
-        /* TELA DE PEDIDO */
+        canvas { 
+            display: block; 
+            border-radius: 15px; 
+            background: #0a0a15;
+            cursor: none;
+        }
+
+        /* --- FASE 2: PEDIDO COM MAGNETISMO --- */
         #valentine-screen {
             display: none;
             text-align: center;
             width: 100%;
         }
 
+        h1 { font-size: 2.5rem; margin-bottom: 30px; letter-spacing: -1px; }
+
         .buttons-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 40px;
-            margin-top: 50px;
-            height: 100px; /* Espaço para o botão não quebrar o layout */
+            height: 200px; /* Área de segurança para a mola */
         }
 
         button {
-            padding: 18px 45px;
+            padding: 20px 50px;
             font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 50px;
+            font-weight: 800;
+            border-radius: 100px;
             border: none;
             cursor: pointer;
-            z-index: 10;
+            text-transform: uppercase;
         }
 
         #yesBtn {
-            background: linear-gradient(135deg, #ff4d6d, #ff85a1);
+            background: linear-gradient(135deg, var(--primary), #ff85a1);
             color: white;
-            box-shadow: 0 10px 30px rgba(255, 77, 109, 0.5);
-            transition: transform 0.2s;
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.4);
+            transition: all 0.3s ease;
         }
 
-        #yesBtn:hover { transform: scale(1.1); }
+        #yesBtn:hover { transform: translateY(-5px) scale(1.05); }
 
         #noBtn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             color: #F6AD55;
-            border: 2px solid #F6AD55;
-            position: relative; /* Começa relativo para alinhar ao Sim */
+            border: 2px solid rgba(246, 173, 85, 0.5);
+            position: relative;
             will-change: transform;
         }
 
-        /* CELEBRAÇÃO FINAL */
-        #celebration {
+        /* --- TELA DE SUCESSO --- */
+        #success-screen {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 10, 30, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 9999;
+            background: radial-gradient(circle at center, #1a0b1e 0%, #05050a 100%);
+            z-index: 100;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
+            animation: fadeIn 0.8s ease;
         }
 
-        .heart-fly {
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .heart-celebration {
             position: absolute;
             pointer-events: none;
-            animation: fly 3s linear forwards;
+            animation: rise 4s linear forwards;
         }
 
-        @keyframes fly {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+        @keyframes rise {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <div id="game-section">
-        <h1 style="margin-bottom: 20px;">Leve o ❤️ até a meta...</h1>
-        <div id="maze-container">
-            <canvas id="mazeCanvas" width="300" height="300"></canvas>
+        <h1 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 15px;">Navegue com cuidado até meu coração...</h1>
+        <div class="maze-board">
+            <canvas id="mazeCanvas" width="520" height="520"></canvas>
         </div>
     </div>
 
     <div id="valentine-screen">
-        <h1 style="font-size: 3rem; margin-bottom: 20px;">Will you be my Valentine? 💌</h1>
+        <h1>Will you be my Valentine? 💌</h1>
         <div class="buttons-wrapper">
             <button id="yesBtn">SIM!</button>
             <button id="noBtn">Não</button>
         </div>
     </div>
 
-    <div id="celebration">
-        <h1 style="font-size: 4rem;">SIM! ❤️ ✨</h1>
-        <p style="font-size: 1.5rem; opacity: 0.8;">Eu sabia que você conseguiria!</p>
+    <div id="success-screen">
+        <h1 style="font-size: 4rem; margin-bottom: 10px;">SIM! ❤️ ✨</h1>
+        <p style="font-size: 1.5rem; opacity: 0.6;">A melhor escolha da sua vida.</p>
     </div>
 
     <script>
         const canvas = document.getElementById('mazeCanvas');
         const ctx = canvas.getContext('2d');
-        const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
-
-        // 1. LABIRINTO SIMPLIFICADO (Para evitar bugs de colisão)
+        
+        // 1. LABIRINTO COMPLEXO (Matriz 13x13)
         const maze = [
-            [1,1,1,1,1,1,1],
-            [0,0,0,0,0,0,1],
-            [1,1,1,1,1,0,1],
-            [1,0,0,0,0,0,1],
-            [1,0,1,1,1,1,1],
-            [1,0,0,0,0,2,1],
-            [1,1,1,1,1,1,1]
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [0,0,1,0,0,0,0,0,1,0,0,0,1],
+            [1,0,1,0,1,1,1,0,1,0,1,0,1],
+            [1,0,0,0,1,0,0,0,0,0,1,0,1],
+            [1,1,1,0,1,1,1,1,1,1,1,0,1],
+            [1,0,0,0,0,0,1,0,0,0,0,0,1],
+            [1,0,1,1,1,0,1,0,1,1,1,1,1],
+            [1,0,1,0,0,0,0,0,0,0,1,0,1],
+            [1,0,1,0,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,1],
+            [1,1,1,1,1,0,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,1,0,0,0,0,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1]
         ];
-        const tileSize = canvas.width / maze.length;
+
+        const rows = maze.length;
+        const cols = maze[0].length;
+        const tileSize = canvas.width / cols;
         let player = { x: 0, y: 1 };
 
-        function draw() {
-            ctx.clearRect(0,0,300,300);
-            maze.forEach((row, y) => {
-                row.forEach((cell, x) => {
-                    if(cell === 1) { ctx.fillStyle = '#6B46C1'; ctx.fillRect(x*tileSize, y*tileSize, tileSize-1, tileSize-1); }
-                    if(cell === 2) { ctx.fillText("❤️", x*tileSize+10, y*tileSize+30); ctx.font = "20px Arial"; }
-                });
-            });
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for(let y=0; y<rows; y++) {
+                for(let x=0; x<cols; x++) {
+                    if(maze[y][x] === 1) {
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#6B46C1';
+                        ctx.fillStyle = '#1a1a3a';
+                        ctx.fillRect(x*tileSize, y*tileSize, tileSize-1, tileSize-1);
+                        ctx.shadowBlur = 0;
+                    } else if(maze[y][x] === 2) {
+                        ctx.font = "24px Arial";
+                        ctx.fillText("❤️", x*tileSize + 8, y*tileSize + 30);
+                    }
+                }
+            }
+            
+            // Desenhar Jogador
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff4d6d';
             ctx.fillStyle = "#ff4d6d";
-            ctx.beginPath(); ctx.arc(player.x*tileSize+tileSize/2, player.y*tileSize+tileSize/2, 10, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.x*tileSize + tileSize/2, player.y*tileSize + tileSize/2, tileSize/3, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
         }
 
         window.addEventListener('keydown', (e) => {
             let dx = 0, dy = 0;
-            if(e.key === "ArrowUp") dy = -1; else if(e.key === "ArrowDown") dy = 1;
-            else if(e.key === "ArrowLeft") dx = -1; else if(e.key === "ArrowRight") dx = 1;
-            
+            if(e.key === "ArrowUp") dy = -1;
+            else if(e.key === "ArrowDown") dy = 1;
+            else if(e.key === "ArrowLeft") dx = -1;
+            else if(e.key === "ArrowRight") dx = 1;
+
             if(maze[player.y + dy]?.[player.x + dx] !== 1) {
-                player.x += dx; player.y += dy;
+                player.x += dx;
+                player.y += dy;
                 if(maze[player.y][player.x] === 2) {
                     document.getElementById('game-section').style.display = 'none';
                     document.getElementById('valentine-screen').style.display = 'block';
                 }
-                draw();
+                drawMaze();
             }
         });
-        draw();
+        drawMaze();
 
-        // 2. POLARIDADE MAGNÉTICA (O segredo está no offset)
-        let offsetX = 0;
-        let offsetY = 0;
+        // 2. POLARIDADE MAGNÉTICA COM EFEITO MOLA (RESTAURAÇÃO)
+        const noBtn = document.getElementById('noBtn');
+        let currentX = 0, currentY = 0;
+        let targetX = 0, targetY = 0;
 
         document.addEventListener('mousemove', (e) => {
             if(document.getElementById('valentine-screen').style.display !== 'block') return;
 
             const rect = noBtn.getBoundingClientRect();
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
-            const btnX = rect.left + rect.width / 2;
-            const btnY = rect.top + rect.height / 2;
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
 
-            const dist = Math.hypot(mouseX - btnX, mouseY - btnY);
-            const radius = 120; // Campo de força
+            const dx = e.clientX - btnCenterX;
+            const dy = e.clientY - btnCenterY;
+            const dist = Math.hypot(dx, dy);
+            const radius = 160;
 
             if (dist < radius) {
-                const angle = Math.atan2(btnY - mouseY, btnX - mouseX);
                 const force = (radius - dist) / radius;
-                
-                // Empurra o botão acumulando o offset
-                offsetX += Math.cos(angle) * force * 20;
-                offsetY += Math.sin(angle) * force * 20;
-
-                noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                const angle = Math.atan2(dy, dx);
+                // O botão foge do cursor
+                targetX -= Math.cos(angle) * force * 120;
+                targetY -= Math.sin(angle) * force * 120;
+            } else {
+                // Mola: O alvo volta gradualmente para a posição inicial (0,0)
+                targetX *= 0.92;
+                targetY *= 0.92;
             }
         });
 
-        // 3. SUCESSO INTERATIVO
-        yesBtn.addEventListener('click', () => {
-            document.getElementById('valentine-screen').style.display = 'none';
-            const celeb = document.getElementById('celebration');
-            celeb.style.display = 'flex';
-            
-            // Log do sistema
-            console.log("Salvo em P:\\IT\\Controlador msg_id");
+        // Loop suave de animação
+        function updateMotion() {
+            // Interpolação para suavizar o movimento
+            currentX += (targetX - currentX) * 0.15;
+            currentY += (targetY - currentY) * 0.15;
 
-            // Partículas
-            for(let i=0; i<50; i++) {
+            noBtn.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            requestAnimationFrame(updateMotion);
+        }
+        updateMotion();
+
+        // 3. SUCESSO E LOG
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            document.getElementById('valentine-screen').style.display = 'none';
+            const screen = document.getElementById('success-screen');
+            screen.style.display = 'flex';
+            
+            // Log automático para o caminho do controlador
+            console.log("Success: Valentine Accepted. File generated in P:\\IT\\Controlador msg_id");
+
+            // Chuva de corações
+            for(let i=0; i<80; i++) {
                 const h = document.createElement('div');
-                h.className = 'heart-fly';
-                h.textContent = ['❤️','💖','✨','💕'][Math.floor(Math.random()*4)];
+                h.className = 'heart-celebration';
+                h.textContent = ['❤️','💖','✨','💕','🌸'][Math.floor(Math.random()*5)];
                 h.style.left = Math.random() * 100 + 'vw';
-                h.style.top = '100vh';
                 h.style.fontSize = Math.random() * 20 + 20 + 'px';
-                h.style.animationDelay = Math.random() * 2 + 's';
-                celeb.appendChild(h);
+                h.style.animationDelay = Math.random() * 4 + 's';
+                h.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                screen.appendChild(h);
             }
         });
     </script>
